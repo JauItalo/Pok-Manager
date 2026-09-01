@@ -1,7 +1,8 @@
 import { Link, useLocation } from 'react-router-dom'
 
 const NAV_ITEMS = [
-  { label: 'Pokédex', path: '/', enabled: true },
+  { label: 'Início', path: '/', enabled: true },
+  { label: 'Pokédex', path: '/pokedex', enabled: true },
   { label: 'Coleção', path: '/colecao', enabled: false },
   { label: 'Times', path: '/times', enabled: false },
 ]
