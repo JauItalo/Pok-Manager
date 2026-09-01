@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+
+    <springProperty scope="context" name="appName" source="spring.application.name"/>
+
+    <springProperty scope="context" name="appName" source="spring.application.name"/>
+    <springProperty scope="context" name="lokiUrl" source="logging.loki.url" defaultValue="http://localhost:3100/loki/api/v1/push"/>
+    <springProperty scope="context" name="lokiUser" source="logging.loki.user" defaultValue=""/>
+    <springProperty scope="context" name="lokiApiKey" source="logging.loki.api-key" defaultValue=""/>
+
+    <!-- Console legível, útil no terminal durante o desenvolvimento -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %-5level [%thread] %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Envia os logs direto para o Loki (local ou Grafana Cloud, dependendo do .env) -->
+    <appender name="LOKI" class="com.github.loki4j.logback.Loki4jAppender">
+        <http>
+            <url>${lokiUrl}</url>
+            <auth>
+                <username>${lokiUser}</username>
+                <password>${lokiApiKey}</password>
+            </auth>
+        </http>
+        <format>
+            <label>
+                <pattern>application=${appName},level=%level,logger=%logger{20}</pattern>
+            </label>
+            <message>
+                <pattern>level=%level logger=%logger thread=%thread msg=%msg%n%ex</pattern>
+            </message>
+        </format>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="LOKI"/>
+    </root>
+
+    <logger name="com.projetopokemanager" level="DEBUG"/>
+    <logger name="org.hibernate.SQL" level="DEBUG"/>
+
+</configuration>

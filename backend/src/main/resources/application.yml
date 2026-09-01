@@ -21,3 +21,25 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    tags:
+      application: ${spring.application.name}
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+
+logging:
+  loki:
+    url: ${GC_LOKI_URL:http://localhost:3100/loki/api/v1/push}
+    user: ${GC_LOKI_USER:}
+    api-key: ${GC_API_KEY:}

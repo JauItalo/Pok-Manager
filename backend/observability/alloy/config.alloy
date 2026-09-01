@@ -1,0 +1,21 @@
+// Le as metricas do backend Spring Boot (rodando no host, fora do Docker)
+prometheus.scrape "pokemanager" {
+  targets = [
+    {"__address__" = "host.docker.internal:8080"},
+  ]
+  metrics_path   = "/actuator/prometheus"
+  scrape_interval = "15s"
+  forward_to     = [prometheus.remote_write.grafanacloud.receiver]
+}
+
+// Envia (push) as metricas coletadas para a sua conta Grafana Cloud
+prometheus.remote_write "grafanacloud" {
+  endpoint {
+    url = sys.env("GC_PROMETHEUS_URL")
+
+    basic_auth {
+      username = sys.env("GC_PROMETHEUS_USER")
+      password = sys.env("GC_API_KEY")
+    }
+  }
+}

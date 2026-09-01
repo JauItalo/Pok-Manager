@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+-e 
+# Credenciais locais (Grafana Cloud, etc.)
+.env

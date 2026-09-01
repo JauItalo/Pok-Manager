@@ -1,0 +1,12 @@
+global:
+  scrape_interval: 5s
+  evaluation_interval: 5s
+
+scrape_configs:
+  - job_name: 'pokemanager-backend'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      # host.docker.internal permite o container acessar o backend rodando no host (mvn spring-boot:run)
+      - targets: ['host.docker.internal:8080']
+        labels:
+          application: 'pokemanager'

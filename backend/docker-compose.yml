@@ -12,5 +12,25 @@ services:
     volumes:
       - pokemanager-data:/var/lib/postgresql/data
 
+  # Agente que le as metricas do backend e envia (push) para o Grafana Cloud.
+  # Credenciais vem do arquivo .env (veja .env.example).
+  alloy:
+    image: grafana/alloy:v1.5.1
+    container_name: pokemanager-alloy
+    restart: unless-stopped
+    command:
+      - run
+      - /etc/alloy/config.alloy
+      - --storage.path=/var/lib/alloy/data
+    volumes:
+      - ./observability/alloy/config.alloy:/etc/alloy/config.alloy:ro
+    environment:
+      GC_PROMETHEUS_URL: ${GC_PROMETHEUS_URL}
+      GC_PROMETHEUS_USER: ${GC_PROMETHEUS_USER}
+      GC_API_KEY: ${GC_API_KEY}
+    extra_hosts:
+      # permite o Alloy alcançar o backend rodando no host (mvn spring-boot:run)
+      - "host.docker.internal:host-gateway"
+
 volumes:
   pokemanager-data:
