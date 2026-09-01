@@ -1,10 +1,14 @@
 package com.projetopokemanager.service;
 
+import com.projetopokemanager.entity.Ability;
 import com.projetopokemanager.entity.Pokemon;
+import com.projetopokemanager.entity.PokemonAbility;
 import com.projetopokemanager.entity.enums.PokemonType;
 import com.projetopokemanager.integration.pokeapi.PokeApiClient;
+import com.projetopokemanager.integration.pokeapi.dto.PokeApiAbilitySlotDTO;
 import com.projetopokemanager.integration.pokeapi.dto.PokeApiPokemonDTO;
 import com.projetopokemanager.integration.pokeapi.dto.PokeApiStatSlotDTO;
+import com.projetopokemanager.repository.AbilityRepository;
 import com.projetopokemanager.repository.PokemonRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +16,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +24,7 @@ public class PokemonSyncService {
 
     private final PokeApiClient pokeApiClient;
     private final PokemonRepository pokemonRepository;
+    private final AbilityRepository abilityRepository;
 
     public void syncRange(int startId, int endId) {
         for (int id = startId; id <= endId; id++) {
@@ -36,9 +40,33 @@ public class PokemonSyncService {
 
         PokeApiPokemonDTO dto = pokeApiClient.fetchPokemon(pokeapiId);
         Pokemon pokemon = toEntity(dto);
+
+        attachAbilities(pokemon, dto.abilities());
+
         pokemonRepository.save(pokemon);
 
         log.info("Pokémon {} ({}) sincronizado.", pokeapiId, pokemon.getName());
+    }
+
+    private void attachAbilities(Pokemon pokemon, List<PokeApiAbilitySlotDTO> abilitySlots) {
+        for (PokeApiAbilitySlotDTO slot : abilitySlots) {
+            Ability ability = findOrCreateAbility(slot.ability().name());
+
+            PokemonAbility pokemonAbility = PokemonAbility.builder()
+                    .pokemon(pokemon)
+                    .ability(ability)
+                    .hidden(Boolean.TRUE.equals(slot.isHidden()))
+                    .slot(slot.slot())
+                    .build();
+
+            pokemon.getAbilities().add(pokemonAbility);
+        }
+    }
+
+    private Ability findOrCreateAbility(String name) {
+        return abilityRepository.findByName(name)
+                .orElseGet(() -> abilityRepository.save(
+                        Ability.builder().name(name).build()));
     }
 
     private Pokemon toEntity(PokeApiPokemonDTO dto) {

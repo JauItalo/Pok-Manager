@@ -1,5 +1,7 @@
 package com.projetopokemanager.dto;
 
+import java.util.List;
+
 import com.projetopokemanager.entity.enums.PokemonType;
 
 public record PokemonResponseDTO(
@@ -14,6 +16,7 @@ public record PokemonResponseDTO(
         Integer specialAttack,
         Integer specialDefense,
         Integer speed,
-        String imageUrl
+        String imageUrl,
+        List<AbilityDTO> abilities
 ) {
 }

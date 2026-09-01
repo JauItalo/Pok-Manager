@@ -12,6 +12,7 @@ public record PokeApiPokemonDTO(
         Integer weight,
         List<PokeApiTypeSlotDTO> types,
         List<PokeApiStatSlotDTO> stats,
+        List<PokeApiAbilitySlotDTO> abilities,
         PokeApiSpritesDTO sprites
 ) {
 }

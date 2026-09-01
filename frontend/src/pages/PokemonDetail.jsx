@@ -123,6 +123,32 @@ function PokemonDetail() {
               <StatBar key={key} label={label} value={pokemon[key]} accentColor={accent} />
             ))}
           </div>
+
+          {pokemon.abilities && pokemon.abilities.length > 0 && (
+            <div className="mt-6">
+              <h2
+                className="font-display text-lg font-bold mb-3 pl-3 border-l-4"
+                style={{ borderColor: accent }}
+              >
+                Habilidades
+              </h2>
+              <div className="flex flex-col gap-2">
+                {pokemon.abilities.map((ability) => (
+                  <div
+                    key={ability.name}
+                    className="flex items-center justify-between bg-slate-800 rounded-lg px-3 py-2"
+                  >
+                    <span className="capitalize text-sm">{ability.name.replace('-', ' ')}</span>
+                    {ability.hidden && (
+                      <span className="text-xs font-semibold text-slate-400 bg-slate-700 px-2 py-0.5 rounded-full">
+                        Oculta
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </section>
 
         <section className="flex flex-col gap-6">

@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.projetopokemanager.dto.AbilityDTO;
 import com.projetopokemanager.dto.PokemonEffectivenessResponseDTO;
 import com.projetopokemanager.dto.PokemonResponseDTO;
 import com.projetopokemanager.entity.Pokemon;
@@ -27,21 +28,26 @@ public class PokemonService {
     }
 
     private PokemonResponseDTO toDTO(Pokemon pokemon) {
-        return new PokemonResponseDTO(
-                pokemon.getId(),
-                pokemon.getPokeapiId(),
-                pokemon.getName(),
-                pokemon.getPrimaryType(),
-                pokemon.getSecondaryType(),
-                pokemon.getHp(),
-                pokemon.getAttack(),
-                pokemon.getDefense(),
-                pokemon.getSpecialAttack(),
-                pokemon.getSpecialDefense(),
-                pokemon.getSpeed(),
-                pokemon.getImageUrl()
-        );
-    }
+    List<AbilityDTO> abilities = pokemon.getAbilities().stream()
+            .map(pa -> new AbilityDTO(pa.getAbility().getName(), pa.isHidden()))
+            .toList();
+
+    return new PokemonResponseDTO(
+            pokemon.getId(),
+            pokemon.getPokeapiId(),
+            pokemon.getName(),
+            pokemon.getPrimaryType(),
+            pokemon.getSecondaryType(),
+            pokemon.getHp(),
+            pokemon.getAttack(),
+            pokemon.getDefense(),
+            pokemon.getSpecialAttack(),
+            pokemon.getSpecialDefense(),
+            pokemon.getSpeed(),
+            pokemon.getImageUrl(),
+            abilities
+    );
+}
 
     public List<PokemonResponseDTO> search(String name, PokemonType type) {
         return pokemonRepository.search(name, type)
@@ -67,4 +73,6 @@ public class PokemonService {
 
         return typeEffectivenessService.calculate(pokemon.getPrimaryType(), pokemon.getSecondaryType());
     }
+
+    
 }
