@@ -14,7 +14,7 @@ function Pokedex() {
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       fetchPokemons()
-    }, 300) // debounce: espera 300ms depois que o usuário para de digitar
+    }, 300)
 
     return () => clearTimeout(timeoutId)
   }, [nameInput, typeFilter])
@@ -38,22 +38,29 @@ function Pokedex() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">Pokédex</h1>
+    <div className="max-w-6xl mx-auto px-4 py-10">
+      <header className="mb-8">
+        <h1 className="font-display text-4xl font-bold">Pokédex</h1>
+        <p className="text-slate-400 text-sm mt-1">
+          {pokemons.length > 0 && !loading
+            ? `${pokemons.length} Pokémon encontrados`
+            : 'Explore e monte sua coleção'}
+        </p>
+      </header>
 
-      <div className="flex flex-col sm:flex-row gap-3 mb-6">
+      <div className="flex flex-col sm:flex-row gap-3 mb-8">
         <input
           type="text"
           placeholder="Buscar por nome..."
           value={nameInput}
           onChange={(e) => setNameInput(e.target.value)}
-          className="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 outline-none focus:border-slate-500"
+          className="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 outline-none focus:border-slate-500 transition-colors"
         />
 
         <select
           value={typeFilter}
           onChange={(e) => setTypeFilter(e.target.value)}
-          className="bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 outline-none focus:border-slate-500"
+          className="bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 outline-none focus:border-slate-500 transition-colors"
         >
           <option value="">Todos os tipos</option>
           {Object.entries(TYPE_LABELS_PT).map(([value, label]) => (
