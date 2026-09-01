@@ -19,6 +19,27 @@ export const TYPE_COLORS = {
   FAIRY: '#EE99AC',
 }
 
+export const TYPE_COLORS_DARK = {
+  NORMAL: '#6B6B54',
+  FIRE: '#9C4A1A',
+  WATER: '#2D4A99',
+  ELECTRIC: '#A17E10',
+  GRASS: '#3F7A2E',
+  ICE: '#3F7A7A',
+  FIGHTING: '#6E1815',
+  POISON: '#5C1F5C',
+  GROUND: '#8A6A2E',
+  FLYING: '#4F3A99',
+  PSYCHIC: '#99204F',
+  BUG: '#5C6612',
+  ROCK: '#6B5E1C',
+  GHOST: '#3D2E56',
+  DRAGON: '#3A1C99',
+  DARK: '#2E241A',
+  STEEL: '#4F4F66',
+  FAIRY: '#993D5C',
+}
+
 export const TYPE_LABELS_PT = {
   NORMAL: 'Normal',
   FIRE: 'Fogo',
