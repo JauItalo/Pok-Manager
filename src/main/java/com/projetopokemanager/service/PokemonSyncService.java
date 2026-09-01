@@ -1,0 +1,82 @@
+package com.projetopokemanager.service;
+
+import com.projetopokemanager.entity.Pokemon;
+import com.projetopokemanager.entity.enums.PokemonType;
+import com.projetopokemanager.integration.pokeapi.PokeApiClient;
+import com.projetopokemanager.integration.pokeapi.dto.PokeApiPokemonDTO;
+import com.projetopokemanager.integration.pokeapi.dto.PokeApiStatSlotDTO;
+import com.projetopokemanager.repository.PokemonRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+
+@Service
+@RequiredArgsConstructor
+@Slf4j
+public class PokemonSyncService {
+
+    private final PokeApiClient pokeApiClient;
+    private final PokemonRepository pokemonRepository;
+
+    public void syncRange(int startId, int endId) {
+        for (int id = startId; id <= endId; id++) {
+            syncOne(id);
+        }
+    }
+
+    private void syncOne(int pokeapiId) {
+        if (pokemonRepository.existsByPokeapiId(pokeapiId)) {
+            log.info("Pokémon {} já sincronizado, pulando.", pokeapiId);
+            return;
+        }
+
+        PokeApiPokemonDTO dto = pokeApiClient.fetchPokemon(pokeapiId);
+        Pokemon pokemon = toEntity(dto);
+        pokemonRepository.save(pokemon);
+
+        log.info("Pokémon {} ({}) sincronizado.", pokeapiId, pokemon.getName());
+    }
+
+    private Pokemon toEntity(PokeApiPokemonDTO dto) {
+        Map<String, Integer> statsByName = dto.stats().stream()
+                .collect(java.util.stream.Collectors.toMap(
+                        s -> s.stat().name(),
+                        PokeApiStatSlotDTO::baseStat
+                ));
+
+        List<PokemonType> types = dto.types().stream()
+                .sorted((a, b) -> a.slot().compareTo(b.slot()))
+                .map(t -> parseType(t.type().name()))
+                .toList();
+
+        String imageUrl = dto.sprites() != null
+                && dto.sprites().other() != null
+                && dto.sprites().other().officialArtwork() != null
+                ? dto.sprites().other().officialArtwork().frontDefault()
+                : null;
+
+        return Pokemon.builder()
+                .pokeapiId(dto.id())
+                .name(dto.name())
+                .primaryType(types.get(0))
+                .secondaryType(types.size() > 1 ? types.get(1) : null)
+                .height(dto.height())
+                .weight(dto.weight())
+                .hp(statsByName.get("hp"))
+                .attack(statsByName.get("attack"))
+                .defense(statsByName.get("defense"))
+                .specialAttack(statsByName.get("special-attack"))
+                .specialDefense(statsByName.get("special-defense"))
+                .speed(statsByName.get("speed"))
+                .imageUrl(imageUrl)
+                .build();
+    }
+
+    private PokemonType parseType(String pokeApiTypeName) {
+        return PokemonType.valueOf(pokeApiTypeName.toUpperCase());
+    }
+}
