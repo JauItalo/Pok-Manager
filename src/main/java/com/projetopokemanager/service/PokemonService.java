@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.projetopokemanager.dto.PokemonEffectivenessResponseDTO;
 import com.projetopokemanager.dto.PokemonResponseDTO;
 import com.projetopokemanager.entity.Pokemon;
 import com.projetopokemanager.entity.enums.PokemonType;
@@ -55,5 +56,15 @@ public class PokemonService {
                 "Pokémon não encontrado com id: " + id));
 
         return toDTO(pokemon);
+    }
+
+    private final TypeEffectivenessService typeEffectivenessService;
+
+    public PokemonEffectivenessResponseDTO getEffectiveness(Long id) {
+        Pokemon pokemon = pokemonRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                "Pokémon não encontrado com id: " + id));
+
+        return typeEffectivenessService.calculate(pokemon.getPrimaryType(), pokemon.getSecondaryType());
     }
 }
