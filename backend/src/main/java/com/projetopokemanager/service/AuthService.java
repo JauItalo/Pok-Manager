@@ -75,4 +75,20 @@ public class AuthService {
 
         return new AuthResponseDTO(token, "Bearer", user.getUsername());
     }
+
+    public void forgotPassword(String email) {
+    userRepository.findByEmail(email).ifPresent(user -> {
+        String token = userTokenService.generateToken(
+                user, TokenType.PASSWORD_RESET, Duration.ofMinutes(30));
+
+        emailService.sendPasswordResetEmail(user.getEmail(), token);
+    });
+    // sempre retorna normalmente, exista ou não o e-mail (ver explicação abaixo)
+}
+
+public void resetPassword(String token, String newPassword) {
+    User user = userTokenService.consumeToken(token, TokenType.PASSWORD_RESET);
+    user.setPassword(passwordEncoder.encode(newPassword));
+    userRepository.save(user);
+}
 }

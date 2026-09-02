@@ -8,8 +8,10 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.projetopokemanager.dto.AuthResponseDTO;
+import com.projetopokemanager.dto.ForgotPasswordRequestDTO;
 import com.projetopokemanager.dto.LoginRequestDTO;
 import com.projetopokemanager.dto.RegisterRequestDTO;
+import com.projetopokemanager.dto.ResetPasswordRequestDTO;
 import com.projetopokemanager.dto.UserResponseDTO;
 import com.projetopokemanager.dto.VerifyEmailRequestDTO;
 import com.projetopokemanager.service.AuthService;
@@ -39,4 +41,14 @@ public class AuthController {
     public void verifyEmail(@Valid @RequestBody VerifyEmailRequestDTO request) {
         authService.verifyEmail(request.token());
     }
+
+    @PostMapping("/forgot-password")
+public void forgotPassword(@Valid @RequestBody ForgotPasswordRequestDTO request) {
+    authService.forgotPassword(request.email());
+}
+
+@PostMapping("/reset-password")
+public void resetPassword(@Valid @RequestBody ResetPasswordRequestDTO request) {
+    authService.resetPassword(request.token(), request.newPassword());
+}
 }

@@ -33,4 +33,22 @@ public class EmailService {
 
         mailSender.send(message);
     }
+
+    public void sendPasswordResetEmail(String toEmail, String token) {
+    String link = frontendUrl + "/redefinir-senha?token=" + token;
+
+    SimpleMailMessage message = new SimpleMailMessage();
+    message.setTo(toEmail);
+    message.setSubject("Redefinição de senha - PokéManager");
+    message.setText("""
+            Recebemos um pedido para redefinir sua senha.
+
+            Clique no link abaixo para criar uma nova senha (válido por 30 minutos):
+            %s
+
+            Se você não pediu isso, ignore este e-mail — sua senha continua a mesma.
+            """.formatted(link));
+
+    mailSender.send(message);
+}
 }
