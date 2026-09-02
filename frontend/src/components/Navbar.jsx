@@ -1,4 +1,5 @@
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import useAuthStore from '../store/authStore'
 
 const NAV_ITEMS = [
   { label: 'Início', path: '/', enabled: true },
@@ -9,6 +10,13 @@ const NAV_ITEMS = [
 
 function Navbar() {
   const location = useLocation()
+  const navigate = useNavigate()
+  const { isAuthenticated, username, logout } = useAuthStore()
+
+  function handleLogout() {
+    logout()
+    navigate('/')
+  }
 
   return (
     <nav className="sticky top-0 z-10 backdrop-blur bg-slate-900/80 border-b border-slate-800">
@@ -47,6 +55,37 @@ function Navbar() {
               </Link>
             )
           })}
+
+          <div className="w-px h-6 bg-slate-700 mx-2" />
+
+          {isAuthenticated ? (
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-slate-400">
+                Olá, <span className="text-white font-medium">{username}</span>
+              </span>
+              <button
+                onClick={handleLogout}
+                className="px-3 py-1.5 text-sm rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/60 transition-colors"
+              >
+                Sair
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <Link
+                to="/login"
+                className="px-3 py-1.5 text-sm rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/60 transition-colors"
+              >
+                Entrar
+              </Link>
+              <Link
+                to="/cadastro"
+                className="px-3 py-1.5 text-sm rounded-lg bg-red-500 hover:bg-red-400 text-white font-medium transition-colors"
+              >
+                Criar conta
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     </nav>

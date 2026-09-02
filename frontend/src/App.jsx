@@ -3,6 +3,8 @@ import Navbar from './components/Navbar'
 import Home from './pages/Home'
 import Pokedex from './pages/Pokedex'
 import PokemonDetail from './pages/PokemonDetail'
+import Login from './pages/Login'
+import Register from './pages/Register'
 
 function App() {
   return (
@@ -12,6 +14,8 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/pokedex" element={<Pokedex />} />
         <Route path="/pokemon/:id" element={<PokemonDetail />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/cadastro" element={<Register />} />
       </Routes>
     </div>
   )
