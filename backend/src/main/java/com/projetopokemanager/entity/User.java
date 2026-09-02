@@ -52,7 +52,6 @@ public class User implements UserDetails {
     }
 
     // --- métodos exigidos pela interface UserDetails ---
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_USER"));
@@ -75,6 +74,10 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return enabled;
     }
+
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean enabled = true;
 }

@@ -59,4 +59,27 @@ public class GlobalExceptionHandler {
         );
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
     }
+
+    @ExceptionHandler(InvalidTokenException.class)
+    public ResponseEntity<ErrorResponseDTO> handleInvalidToken(InvalidTokenException ex) {
+        ErrorResponseDTO error = new ErrorResponseDTO(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "Bad Request",
+                ex.getMessage()
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(org.springframework.security.authentication.DisabledException.class)
+    public ResponseEntity<ErrorResponseDTO> handleDisabledAccount(
+            org.springframework.security.authentication.DisabledException ex) {
+        ErrorResponseDTO error = new ErrorResponseDTO(
+                LocalDateTime.now(),
+                HttpStatus.FORBIDDEN.value(),
+                "Forbidden",
+                "Confirme seu e-mail antes de fazer login"
+        );
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
+    }
 }

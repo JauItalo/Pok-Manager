@@ -11,6 +11,7 @@ import com.projetopokemanager.dto.AuthResponseDTO;
 import com.projetopokemanager.dto.LoginRequestDTO;
 import com.projetopokemanager.dto.RegisterRequestDTO;
 import com.projetopokemanager.dto.UserResponseDTO;
+import com.projetopokemanager.dto.VerifyEmailRequestDTO;
 import com.projetopokemanager.service.AuthService;
 
 import jakarta.validation.Valid;
@@ -30,7 +31,12 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-public AuthResponseDTO login(@Valid @RequestBody LoginRequestDTO request) {
-    return authService.login(request);
-}
+    public AuthResponseDTO login(@Valid @RequestBody LoginRequestDTO request) {
+        return authService.login(request);
+    }
+
+    @PostMapping("/verify-email")
+    public void verifyEmail(@Valid @RequestBody VerifyEmailRequestDTO request) {
+        authService.verifyEmail(request.token());
+    }
 }
