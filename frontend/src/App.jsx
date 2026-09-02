@@ -5,6 +5,8 @@ import Pokedex from './pages/Pokedex'
 import PokemonDetail from './pages/PokemonDetail'
 import Login from './pages/Login'
 import Register from './pages/Register'
+import ForgotPassword from './pages/ForgotPassword'
+import ResetPassword from './pages/ResetPassword'
 
 function App() {
   return (
@@ -16,6 +18,8 @@ function App() {
         <Route path="/pokemon/:id" element={<PokemonDetail />} />
         <Route path="/login" element={<Login />} />
         <Route path="/cadastro" element={<Register />} />
+        <Route path="/esqueci-senha" element={<ForgotPassword />} />
+        <Route path="/redefinir-senha" element={<ResetPassword />} />
       </Routes>
     </div>
   )

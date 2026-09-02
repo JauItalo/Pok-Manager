@@ -13,6 +13,7 @@ function Login() {
   const [loading, setLoading] = useState(false)
 
   const justRegistered = location.state?.justRegistered
+  const passwordReset = location.state?.passwordReset
 
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value })
@@ -46,6 +47,11 @@ function Login() {
         {justRegistered && (
           <div className="bg-green-500/10 border border-green-500/30 text-green-400 text-sm rounded-lg px-4 py-2 mb-4">
             Conta criada! Faça login para continuar.
+          </div>
+        )}
+        {passwordReset && (
+          <div className="bg-green-500/10 border border-green-500/30 text-green-400 text-sm rounded-lg px-4 py-2 mb-4">
+            Senha redefinida! Faça login com sua nova senha.
           </div>
         )}
 
@@ -87,7 +93,14 @@ function Login() {
           >
             {loading ? 'Entrando...' : 'Entrar'}
           </button>
+
+          <div className="text-right -mt-2">
+            <Link to="/esqueci-senha" className="text-sm text-slate-400 hover:text-white hover:underline">
+              Esqueci minha senha
+            </Link>
+          </div>
         </form>
+
 
         <p className="text-sm text-slate-400 text-center mt-6">
           Não tem conta?{' '}
