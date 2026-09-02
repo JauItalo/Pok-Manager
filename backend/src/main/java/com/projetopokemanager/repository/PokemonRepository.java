@@ -1,6 +1,7 @@
 package com.projetopokemanager.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -20,4 +21,8 @@ public interface PokemonRepository extends JpaRepository<Pokemon, Long> {
         ORDER BY p.pokeapiId
         """)
     List<Pokemon> search(@Param("name") String name, @Param("type") PokemonType type);
+
+    Optional<Pokemon> findByPokeapiId(Integer pokeapiId);
+
+    List<Pokemon> findByEvolvesFrom_Id(Long id);
 }

@@ -1,5 +1,10 @@
 package com.projetopokemanager.service;
 
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.stereotype.Service;
+
 import com.projetopokemanager.entity.Ability;
 import com.projetopokemanager.entity.Pokemon;
 import com.projetopokemanager.entity.PokemonAbility;
@@ -7,15 +12,13 @@ import com.projetopokemanager.entity.enums.PokemonType;
 import com.projetopokemanager.integration.pokeapi.PokeApiClient;
 import com.projetopokemanager.integration.pokeapi.dto.PokeApiAbilitySlotDTO;
 import com.projetopokemanager.integration.pokeapi.dto.PokeApiPokemonDTO;
+import com.projetopokemanager.integration.pokeapi.dto.PokeApiSpeciesDTO;
 import com.projetopokemanager.integration.pokeapi.dto.PokeApiStatSlotDTO;
 import com.projetopokemanager.repository.AbilityRepository;
 import com.projetopokemanager.repository.PokemonRepository;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -40,10 +43,11 @@ public class PokemonSyncService {
 
         PokeApiPokemonDTO dto = pokeApiClient.fetchPokemon(pokeapiId);
         Pokemon pokemon = toEntity(dto);
-
         attachAbilities(pokemon, dto.abilities());
 
         pokemonRepository.save(pokemon);
+
+        attachEvolution(pokemon, pokeapiId);
 
         log.info("Pokémon {} ({}) sincronizado.", pokeapiId, pokemon.getName());
     }
@@ -67,6 +71,26 @@ public class PokemonSyncService {
         return abilityRepository.findByName(name)
                 .orElseGet(() -> abilityRepository.save(
                         Ability.builder().name(name).build()));
+    }
+
+    private void attachEvolution(Pokemon pokemon, int pokeapiId) {
+        PokeApiSpeciesDTO species = pokeApiClient.fetchSpecies(pokeapiId);
+
+        if (species.evolvesFromSpecies() == null) {
+            return;
+        }
+
+        Integer fromPokeapiId = extractIdFromUrl(species.evolvesFromSpecies().url());
+
+        pokemonRepository.findByPokeapiId(fromPokeapiId).ifPresent(fromPokemon -> {
+            pokemon.setEvolvesFrom(fromPokemon);
+            pokemonRepository.save(pokemon);
+        });
+    }
+
+    private Integer extractIdFromUrl(String url) {
+        String[] parts = url.split("/");
+        return Integer.parseInt(parts[parts.length - 1]);
     }
 
     private Pokemon toEntity(PokeApiPokemonDTO dto) {

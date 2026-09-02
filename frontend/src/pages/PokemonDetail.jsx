@@ -5,7 +5,7 @@ import TypeBadge from '../components/TypeBadge'
 import StatBar from '../components/StatBar'
 import TypeEffectPill from '../components/TypeEffectPill'
 import { TYPE_COLORS, TYPE_COLORS_DARK } from '../utils/typeColors'
-
+import EvolutionChain from '../components/EvolutionChain'
 const STAT_LABELS = [
   ['hp', 'HP'],
   ['attack', 'Ataque'],
@@ -17,7 +17,7 @@ const STAT_LABELS = [
 
 function PokemonDetail() {
   const { id } = useParams()
-
+  const [evolution, setEvolution] = useState(null)
   const [pokemon, setPokemon] = useState(null)
   const [effectiveness, setEffectiveness] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -32,12 +32,14 @@ function PokemonDetail() {
     setError(null)
 
     try {
-      const [pokemonRes, effectivenessRes] = await Promise.all([
+      const [pokemonRes, effectivenessRes, evolutionRes] = await Promise.all([
         api.get(`/pokemon/${id}`),
         api.get(`/pokemon/${id}/effectiveness`),
+        api.get(`/pokemon/${id}/evolutions`),
       ])
       setPokemon(pokemonRes.data)
       setEffectiveness(effectivenessRes.data)
+      setEvolution(evolutionRes.data)
     } catch (err) {
       setError('Não foi possível carregar esse Pokémon.')
     } finally {
@@ -205,6 +207,20 @@ function PokemonDetail() {
           )}
         </section>
       </div>
+
+      {evolution && (
+        <div className="px-4 mt-8">
+          <h2
+            className="font-display text-lg font-bold mb-4 pl-3 border-l-4"
+            style={{ borderColor: accent }}
+          >
+            Linha Evolutiva
+          </h2>
+          <div className="bg-slate-800/50 rounded-2xl p-6">
+            <EvolutionChain evolution={evolution} />
+          </div>
+        </div>
+      )}
     </div>
   )
 }

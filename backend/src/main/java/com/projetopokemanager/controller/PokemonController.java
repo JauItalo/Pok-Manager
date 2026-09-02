@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.projetopokemanager.dto.PokemonEffectivenessResponseDTO;
+import com.projetopokemanager.dto.PokemonEvolutionResponseDTO;
 import com.projetopokemanager.dto.PokemonResponseDTO;
 import com.projetopokemanager.entity.enums.PokemonType;
 import com.projetopokemanager.service.PokemonService;
@@ -50,5 +51,10 @@ public class PokemonController {
     @GetMapping("/{id}/effectiveness")
     public PokemonEffectivenessResponseDTO getEffectiveness(@PathVariable Long id) {
         return pokemonService.getEffectiveness(id);
+    }
+
+    @GetMapping("/{id}/evolutions")
+    public PokemonEvolutionResponseDTO getEvolutions(@PathVariable Long id) {
+        return pokemonService.getEvolutions(id);
     }
 }
