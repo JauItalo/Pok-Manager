@@ -6,6 +6,8 @@ import StatBar from '../components/StatBar'
 import TypeEffectPill from '../components/TypeEffectPill'
 import { TYPE_COLORS, TYPE_COLORS_DARK } from '../utils/typeColors'
 import EvolutionChain from '../components/EvolutionChain'
+import useAuthStore from '../store/authStore'
+
 const STAT_LABELS = [
   ['hp', 'HP'],
   ['attack', 'Ataque'],
@@ -22,6 +24,8 @@ function PokemonDetail() {
   const [effectiveness, setEffectiveness] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
+  const [addStatus, setAddStatus] = useState(null) // null | 'loading' | 'success' | 'error'
 
   useEffect(() => {
     fetchData()
@@ -44,6 +48,16 @@ function PokemonDetail() {
       setError('Não foi possível carregar esse Pokémon.')
     } finally {
       setLoading(false)
+    }
+  }
+
+  async function handleAddToCollection() {
+    setAddStatus('loading')
+    try {
+      await api.post('/collection', { pokemonId: pokemon.id })
+      setAddStatus('success')
+    } catch (err) {
+      setAddStatus('error')
     }
   }
 
@@ -109,6 +123,25 @@ function PokemonDetail() {
             {pokemon.secondaryType && <TypeBadge type={pokemon.secondaryType} />}
           </div>
         </div>
+      </div>
+
+      <div className="mt-4">
+        {isAuthenticated ? (
+          <button
+            onClick={handleAddToCollection}
+            disabled={addStatus === 'loading'}
+            className="bg-white text-slate-900 font-semibold px-5 py-2 rounded-xl hover:bg-white/90 disabled:opacity-50 transition-colors text-sm"
+          >
+            {addStatus === 'success' ? 'Adicionado! ✓' : 'Adicionar à coleção'}
+          </button>
+        ) : (
+          <Link
+            to="/login"
+            className="text-sm text-white/70 hover:text-white underline"
+          >
+            Entre para adicionar à coleção
+          </Link>
+        )}
       </div>
 
       {/* CONTENT */}

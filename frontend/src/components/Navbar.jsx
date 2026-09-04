@@ -4,8 +4,9 @@ import useAuthStore from '../store/authStore'
 const NAV_ITEMS = [
   { label: 'Início', path: '/', enabled: true },
   { label: 'Pokédex', path: '/pokedex', enabled: true },
-  { label: 'Coleção', path: '/colecao', enabled: false },
+  { label: 'Coleção', path: '/colecao', enabled: true },
   { label: 'Times', path: '/times', enabled: false },
+  
 ]
 
 function Navbar() {
