@@ -12,6 +12,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.projetopokemanager.service.JwtService;
 
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -40,21 +41,30 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         String token = authHeader.substring(7); // remove o prefixo "Bearer "
-        String username = jwtService.extractUsername(token);
 
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        try {
+            String username = jwtService.extractUsername(token);
 
-            if (jwtService.isTokenValid(token, userDetails)) {
-                UsernamePasswordAuthenticationToken authToken =
-                        new UsernamePasswordAuthenticationToken(
-                                userDetails, null, userDetails.getAuthorities());
+            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
-                authToken.setDetails(
-                        new WebAuthenticationDetailsSource().buildDetails(request));
+                if (jwtService.isTokenValid(token, userDetails)) {
+                    UsernamePasswordAuthenticationToken authToken =
+                            new UsernamePasswordAuthenticationToken(
+                                    userDetails, null, userDetails.getAuthorities());
 
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+                    authToken.setDetails(
+                            new WebAuthenticationDetailsSource().buildDetails(request));
+
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
             }
+        } catch (JwtException | IllegalArgumentException e) {
+            // Token expirado, malformado ou inválido: apenas limpa o contexto
+            // de segurança em vez de deixar a exceção estourar como 500.
+            // As regras de autorização do Spring Security cuidam de
+            // retornar 401/403 quando necessário.
+            SecurityContextHolder.clearContext();
         }
 
         filterChain.doFilter(request, response);
