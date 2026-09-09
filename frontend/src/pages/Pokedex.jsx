@@ -3,6 +3,8 @@ import api from '../api/axios'
 import PokemonCard from '../components/PokemonCard'
 import { TYPE_LABELS_PT } from '../utils/typeColors'
 
+const PAGE_SIZE = 24
+
 function Pokedex() {
   const [pokemons, setPokemons] = useState([])
   const [loading, setLoading] = useState(true)
@@ -10,31 +12,46 @@ function Pokedex() {
 
   const [nameInput, setNameInput] = useState('')
   const [typeFilter, setTypeFilter] = useState('')
+  const [page, setPage] = useState(0)
+  const [totalPages, setTotalPages] = useState(0)
+  const [totalElements, setTotalElements] = useState(0)
+
+  // sempre que o filtro mudar, volta pra primeira página
+  useEffect(() => {
+    setPage(0)
+  }, [nameInput, typeFilter])
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       fetchPokemons()
     }, 300)
-
     return () => clearTimeout(timeoutId)
-  }, [nameInput, typeFilter])
+  }, [nameInput, typeFilter, page])
 
   async function fetchPokemons() {
     setLoading(true)
     setError(null)
 
     try {
-      const params = {}
+      const params = { page, size: PAGE_SIZE }
       if (nameInput.trim()) params.name = nameInput.trim()
       if (typeFilter) params.type = typeFilter
 
       const response = await api.get('/pokemon', { params })
-      setPokemons(response.data)
+      setPokemons(response.data.content)
+      setTotalPages(response.data.totalPages)
+      setTotalElements(response.data.totalElements)
     } catch (err) {
       setError('Não foi possível carregar os Pokémon. Verifique se o backend está rodando.')
     } finally {
       setLoading(false)
     }
+  }
+
+  function goToPage(newPage) {
+    if (newPage < 0 || newPage >= totalPages) return
+    setPage(newPage)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   return (
@@ -87,7 +104,7 @@ function Pokedex() {
 
         <div className="border-t border-slate-700/50 mt-5 pt-4">
           <span className="text-white font-semibold">
-            {!loading ? pokemons.length : '...'}
+            {!loading ? totalElements : '...'}
           </span>{' '}
           <span className="text-blue-400">Pokémon encontrados</span>
         </div>
@@ -100,11 +117,36 @@ function Pokedex() {
         <p className="text-slate-400">Nenhum Pokémon encontrado.</p>
       )}
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-8">
         {pokemons.map((pokemon) => (
           <PokemonCard key={pokemon.id} pokemon={pokemon} />
         ))}
       </div>
+
+      {!loading && totalPages > 1 && (
+        <div className="flex items-center justify-center gap-3">
+          <button
+            onClick={() => goToPage(page - 1)}
+            disabled={page === 0}
+            className="bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:hover:bg-slate-800 text-sm font-medium rounded-lg px-4 py-2 transition-colors"
+          >
+            ← Anterior
+          </button>
+
+          <span className="text-sm text-slate-400">
+            Página <span className="text-white font-semibold">{page + 1}</span> de{' '}
+            <span className="text-white font-semibold">{totalPages}</span>
+          </span>
+
+          <button
+            onClick={() => goToPage(page + 1)}
+            disabled={page >= totalPages - 1}
+            className="bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:hover:bg-slate-800 text-sm font-medium rounded-lg px-4 py-2 transition-colors"
+          >
+            Próxima →
+          </button>
+        </div>
+      )}
     </div>
   )
 }

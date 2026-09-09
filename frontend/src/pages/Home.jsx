@@ -16,13 +16,13 @@ const QUICK_LINKS = [
     label: 'Coleção',
     description: 'Marque quais você já capturou e organize sua coleção.',
     path: '/colecao',
-    enabled: false,
+    enabled: true,
   },
   {
     label: 'Times',
     description: 'Monte times de até 6 e analise a cobertura de tipos.',
     path: '/times',
-    enabled: false,
+    enabled: true,
   },
 ]
 
@@ -36,13 +36,11 @@ function Home() {
 
   async function fetchFeatured() {
     try {
-      const response = await api.get('/pokemon')
-      const all = response.data
+      const totalCount = 1025 // total de Pokémon sincronizados
+      const pokeapiId = (getDayOfYear() % totalCount) + 1
 
-      if (all.length > 0) {
-        const index = getDayOfYear() % all.length
-        setFeatured(all[index])
-      }
+      const response = await api.get(`/pokemon/pokedex-number/${pokeapiId}`)
+      setFeatured(response.data)
     } catch (err) {
       // silencioso: a home degrada bem sem o destaque
     } finally {

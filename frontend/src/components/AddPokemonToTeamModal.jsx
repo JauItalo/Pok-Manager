@@ -17,8 +17,10 @@ function AddPokemonToTeamModal({ existingIds, onClose, onAdd }) {
     async function search() {
         setLoading(true)
         try {
-            const response = await api.get('/pokemon', { params: { name: query || undefined } })
-            setResults(response.data)
+            const response = await api.get('/pokemon', {
+                params: { name: query || undefined, size: 50 },
+            })
+            setResults(response.data.content)
         } finally {
             setLoading(false)
         }
