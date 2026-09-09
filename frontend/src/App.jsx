@@ -12,6 +12,7 @@ import ProtectedRoute from './components/ProtectedRoute'
 import Collection from './pages/Collection'
 import Teams from './pages/Teams'
 import TeamDetail from './pages/TeamDetail'
+import Profile from './pages/Profile'
 
 function App() {
   return (
@@ -47,6 +48,14 @@ function App() {
           element={
             <ProtectedRoute>
               <TeamDetail />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/perfil"
+          element={
+            <ProtectedRoute>
+              <Profile />
             </ProtectedRoute>
           }
         />

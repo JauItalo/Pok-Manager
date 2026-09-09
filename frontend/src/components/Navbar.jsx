@@ -6,7 +6,7 @@ const NAV_ITEMS = [
   { label: 'Pokédex', path: '/pokedex', enabled: true },
   { label: 'Coleção', path: '/colecao', enabled: true },
   { label: 'Times', path: '/times', enabled: true },
-  
+
 ]
 
 function Navbar() {
@@ -46,11 +46,10 @@ function Navbar() {
               <Link
                 key={item.label}
                 to={item.path}
-                className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
-                  isActive
+                className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${isActive
                     ? 'bg-slate-800 text-white'
                     : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
-                }`}
+                  }`}
               >
                 {item.label}
               </Link>
@@ -61,9 +60,12 @@ function Navbar() {
 
           {isAuthenticated ? (
             <div className="flex items-center gap-3">
-              <span className="text-sm text-slate-400">
+              <Link
+                to="/perfil"
+                className="text-sm text-slate-400 hover:text-white transition-colors"
+              >
                 Olá, <span className="text-white font-medium">{username}</span>
-              </span>
+              </Link>
               <button
                 onClick={handleLogout}
                 className="px-3 py-1.5 text-sm rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/60 transition-colors"
