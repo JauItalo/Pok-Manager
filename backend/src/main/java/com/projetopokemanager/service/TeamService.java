@@ -8,6 +8,7 @@ import com.projetopokemanager.dto.AddPokemonToTeamRequestDTO;
 import com.projetopokemanager.dto.CreateTeamRequestDTO;
 import com.projetopokemanager.dto.PokemonSummaryDTO;
 import com.projetopokemanager.dto.RenameTeamRequestDTO;
+import com.projetopokemanager.dto.TeamMemberResponseDTO;
 import com.projetopokemanager.dto.TeamResponseDTO;
 import com.projetopokemanager.entity.Pokemon;
 import com.projetopokemanager.entity.Team;
@@ -82,7 +83,10 @@ public class TeamService {
                     pokemon.getName() + " já está nesse time");
         }
 
-        int nextSlot = team.getPokemons().size() + 1;
+        int nextSlot = team.getPokemons().stream()
+                .mapToInt(TeamPokemonEntry::getSlot)
+                .max()
+                .orElse(0) + 1;
 
         TeamPokemonEntry entry = TeamPokemonEntry.builder()
                 .team(team)
@@ -105,31 +109,23 @@ public class TeamService {
                     "Pokémon com entrada " + entryId + " não encontrado nesse time");
         }
 
-        reassignSlots(team);
-
         return toDTO(teamRepository.save(team));
     }
 
-    private void reassignSlots(Team team) {
-        int slot = 1;
-        for (TeamPokemonEntry entry : team.getPokemons()) {
-            entry.setSlot(slot++);
-        }
-    }
-
-    private Team findOwnedTeam(User user, Long teamId) {
+    public Team findOwnedTeam(User user, Long teamId) {
         return teamRepository.findByIdAndUser_Id(teamId, user.getId())
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Time não encontrado: " + teamId));
     }
 
     private TeamResponseDTO toDTO(Team team) {
-        List<PokemonSummaryDTO> pokemons = team.getPokemons().stream()
+        List<TeamMemberResponseDTO> pokemons = team.getPokemons().stream()
                 .map(entry -> {
                     Pokemon p = entry.getPokemon();
-                    return new PokemonSummaryDTO(
+                    PokemonSummaryDTO summary = new PokemonSummaryDTO(
                             p.getId(), p.getPokeapiId(), p.getName(),
                             p.getImageUrl(), p.getPrimaryType(), p.getSecondaryType());
+                    return new TeamMemberResponseDTO(entry.getId(), summary);
                 })
                 .toList();
 

@@ -17,8 +17,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.projetopokemanager.dto.AddPokemonToTeamRequestDTO;
 import com.projetopokemanager.dto.CreateTeamRequestDTO;
 import com.projetopokemanager.dto.RenameTeamRequestDTO;
+import com.projetopokemanager.dto.TeamAnalysisResponseDTO;
 import com.projetopokemanager.dto.TeamResponseDTO;
 import com.projetopokemanager.entity.User;
+import com.projetopokemanager.service.TeamAnalysisService;
 import com.projetopokemanager.service.TeamService;
 
 import jakarta.validation.Valid;
@@ -30,6 +32,16 @@ import lombok.RequiredArgsConstructor;
 public class TeamController {
 
     private final TeamService teamService;
+    private final TeamAnalysisService teamAnalysisService;
+
+    @GetMapping("/{id}/analysis")
+    public TeamAnalysisResponseDTO analyzeTeam(
+            @AuthenticationPrincipal User user,
+            @PathVariable Long id
+    ) {
+        var team = teamService.findOwnedTeam(user, id);
+        return teamAnalysisService.analyze(team);
+    }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)

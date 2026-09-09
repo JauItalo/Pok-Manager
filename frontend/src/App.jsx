@@ -10,6 +10,8 @@ import ResetPassword from './pages/ResetPassword'
 import VerifyEmail from './pages/VerifyEmail'
 import ProtectedRoute from './components/ProtectedRoute'
 import Collection from './pages/Collection'
+import Teams from './pages/Teams'
+import TeamDetail from './pages/TeamDetail'
 
 function App() {
   return (
@@ -29,6 +31,22 @@ function App() {
           element={
             <ProtectedRoute>
               <Collection />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/times"
+          element={
+            <ProtectedRoute>
+              <Teams />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/times/:id"
+          element={
+            <ProtectedRoute>
+              <TeamDetail />
             </ProtectedRoute>
           }
         />

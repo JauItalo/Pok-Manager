@@ -6,7 +6,7 @@ import java.util.List;
 public record TeamResponseDTO(
         Long id,
         String name,
-        List<PokemonSummaryDTO> pokemons,
+        List<TeamMemberResponseDTO> pokemons,
         LocalDateTime createdAt
 ) {
 }
