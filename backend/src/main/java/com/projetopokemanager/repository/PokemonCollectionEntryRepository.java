@@ -12,4 +12,8 @@ public interface PokemonCollectionEntryRepository extends JpaRepository<PokemonC
     List<PokemonCollectionEntry> findAllByUser_Id(Long userId);
 
     Optional<PokemonCollectionEntry> findByIdAndUser_Id(Long id, Long userId);
+
+    long countByUser_Id(Long userId);
+
+    long countByUser_IdAndFavoriteTrue(Long userId);
 }

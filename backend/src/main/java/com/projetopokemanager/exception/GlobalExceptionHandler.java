@@ -105,4 +105,15 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
+    @ExceptionHandler(InvalidCurrentPasswordException.class)
+    public ResponseEntity<ErrorResponseDTO> handleInvalidCurrentPassword(InvalidCurrentPasswordException ex) {
+        ErrorResponseDTO error = new ErrorResponseDTO(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "Bad Request",
+                ex.getMessage()
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
 }
