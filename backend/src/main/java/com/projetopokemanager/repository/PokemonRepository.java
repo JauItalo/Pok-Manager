@@ -3,6 +3,8 @@ package com.projetopokemanager.repository;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -14,15 +16,14 @@ public interface PokemonRepository extends JpaRepository<Pokemon, Long> {
 
     boolean existsByPokeapiId(Integer pokeapiId);
 
-    @Query("""
-        SELECT p FROM Pokemon p
-        WHERE (:name IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', CAST(:name AS string), '%')))
-        AND (:type IS NULL OR p.primaryType = :type OR p.secondaryType = :type)
-        ORDER BY p.pokeapiId
-        """)
-    List<Pokemon> search(@Param("name") String name, @Param("type") PokemonType type);
-
     Optional<Pokemon> findByPokeapiId(Integer pokeapiId);
 
     List<Pokemon> findByEvolvesFrom_Id(Long id);
+
+    @Query("""
+            SELECT p FROM Pokemon p
+            WHERE (:name IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', CAST(:name AS string), '%')))
+            AND (:type IS NULL OR p.primaryType = :type OR p.secondaryType = :type)
+            """)
+    Page<Pokemon> search(@Param("name") String name, @Param("type") PokemonType type, Pageable pageable);
 }

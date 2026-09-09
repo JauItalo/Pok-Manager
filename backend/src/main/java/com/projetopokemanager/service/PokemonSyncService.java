@@ -1,10 +1,12 @@
 package com.projetopokemanager.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
+import com.projetopokemanager.dto.SyncResultDTO;
 import com.projetopokemanager.entity.Ability;
 import com.projetopokemanager.entity.Pokemon;
 import com.projetopokemanager.entity.PokemonAbility;
@@ -29,16 +31,31 @@ public class PokemonSyncService {
     private final PokemonRepository pokemonRepository;
     private final AbilityRepository abilityRepository;
 
-    public void syncRange(int startId, int endId) {
+    public SyncResultDTO syncRange(int startId, int endId) {
+        int synced = 0;
+        int skipped = 0;
+        List<Integer> failed = new ArrayList<>();
+
         for (int id = startId; id <= endId; id++) {
-            syncOne(id);
+            try {
+                boolean wasSynced = syncOne(id);
+                if (wasSynced) {
+                    synced++;
+                } else {
+                    skipped++;
+                }
+            } catch (Exception e) {
+                log.warn("Falha ao sincronizar Pokémon {}: {}", id, e.getMessage());
+                failed.add(id);
+            }
         }
+
+        return new SyncResultDTO(endId - startId + 1, synced, skipped, failed);
     }
 
-    private void syncOne(int pokeapiId) {
+    private boolean syncOne(int pokeapiId) {
         if (pokemonRepository.existsByPokeapiId(pokeapiId)) {
-            log.info("Pokémon {} já sincronizado, pulando.", pokeapiId);
-            return;
+            return false;
         }
 
         PokeApiPokemonDTO dto = pokeApiClient.fetchPokemon(pokeapiId);
@@ -50,6 +67,7 @@ public class PokemonSyncService {
         attachEvolution(pokemon, pokeapiId);
 
         log.info("Pokémon {} ({}) sincronizado.", pokeapiId, pokemon.getName());
+        return true;
     }
 
     private void attachAbilities(Pokemon pokemon, List<PokeApiAbilitySlotDTO> abilitySlots) {

@@ -2,9 +2,14 @@ package com.projetopokemanager.service;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.projetopokemanager.dto.AbilityDTO;
+import com.projetopokemanager.dto.PageResponseDTO;
 import com.projetopokemanager.dto.PokemonEffectivenessResponseDTO;
 import com.projetopokemanager.dto.PokemonEvolutionResponseDTO;
 import com.projetopokemanager.dto.PokemonResponseDTO;
@@ -21,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 public class PokemonService {
 
     private final PokemonRepository pokemonRepository;
+    private final TypeEffectivenessService typeEffectivenessService;
 
     public List<PokemonResponseDTO> findAll() {
         return pokemonRepository.findAll()
@@ -29,33 +35,24 @@ public class PokemonService {
                 .toList();
     }
 
-    private PokemonResponseDTO toDTO(Pokemon pokemon) {
-        List<AbilityDTO> abilities = pokemon.getAbilities().stream()
-                .map(pa -> new AbilityDTO(pa.getAbility().getName(), pa.isHidden()))
-                .toList();
+    public PageResponseDTO<PokemonResponseDTO> search(String name, PokemonType type, int page, int size) {
+        int safeSize = Math.min(Math.max(size, 1), 100);
+        int safePage = Math.max(page, 0);
 
-        return new PokemonResponseDTO(
-                pokemon.getId(),
-                pokemon.getPokeapiId(),
-                pokemon.getName(),
-                pokemon.getPrimaryType(),
-                pokemon.getSecondaryType(),
-                pokemon.getHp(),
-                pokemon.getAttack(),
-                pokemon.getDefense(),
-                pokemon.getSpecialAttack(),
-                pokemon.getSpecialDefense(),
-                pokemon.getSpeed(),
-                pokemon.getImageUrl(),
-                abilities
-        );
-    }
+        Pageable pageable = PageRequest.of(safePage, safeSize, Sort.by("pokeapiId").ascending());
+        Page<Pokemon> result = pokemonRepository.search(name, type, pageable);
 
-    public List<PokemonResponseDTO> search(String name, PokemonType type) {
-        return pokemonRepository.search(name, type)
-                .stream()
+        List<PokemonResponseDTO> content = result.getContent().stream()
                 .map(this::toDTO)
                 .toList();
+
+        return new PageResponseDTO<>(
+                content,
+                result.getNumber(),
+                result.getSize(),
+                result.getTotalElements(),
+                result.getTotalPages()
+        );
     }
 
     public PokemonResponseDTO findById(Long id) {
@@ -66,7 +63,13 @@ public class PokemonService {
         return toDTO(pokemon);
     }
 
-    private final TypeEffectivenessService typeEffectivenessService;
+    public PokemonResponseDTO getByPokeapiId(Integer pokeapiId) {
+        Pokemon pokemon = pokemonRepository.findByPokeapiId(pokeapiId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Pokémon não encontrado com pokeapiId: " + pokeapiId));
+
+        return toDTO(pokemon);
+    }
 
     public PokemonEffectivenessResponseDTO getEffectiveness(Long id) {
         Pokemon pokemon = pokemonRepository.findById(id)
@@ -103,6 +106,28 @@ public class PokemonService {
                 pokemon.getImageUrl(),
                 pokemon.getPrimaryType(),
                 pokemon.getSecondaryType()
+        );
+    }
+
+    private PokemonResponseDTO toDTO(Pokemon pokemon) {
+        List<AbilityDTO> abilities = pokemon.getAbilities().stream()
+                .map(pa -> new AbilityDTO(pa.getAbility().getName(), pa.isHidden()))
+                .toList();
+
+        return new PokemonResponseDTO(
+                pokemon.getId(),
+                pokemon.getPokeapiId(),
+                pokemon.getName(),
+                pokemon.getPrimaryType(),
+                pokemon.getSecondaryType(),
+                pokemon.getHp(),
+                pokemon.getAttack(),
+                pokemon.getDefense(),
+                pokemon.getSpecialAttack(),
+                pokemon.getSpecialDefense(),
+                pokemon.getSpeed(),
+                pokemon.getImageUrl(),
+                abilities
         );
     }
 
