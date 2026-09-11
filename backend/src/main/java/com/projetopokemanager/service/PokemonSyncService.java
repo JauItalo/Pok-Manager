@@ -64,7 +64,7 @@ public class PokemonSyncService {
 
         pokemonRepository.save(pokemon);
 
-        attachEvolution(pokemon, pokeapiId);
+        attachSpeciesData(pokemon, pokeapiId);
 
         log.info("Pokémon {} ({}) sincronizado.", pokeapiId, pokemon.getName());
         return true;
@@ -91,7 +91,7 @@ public class PokemonSyncService {
                         Ability.builder().name(name).build()));
     }
 
-    private void attachEvolution(Pokemon pokemon, int pokeapiId) {
+    private void attachSpeciesData(Pokemon pokemon, int pokeapiId) {
         PokeApiSpeciesDTO species = pokeApiClient.fetchSpecies(pokeapiId);
 
         if (species.evolvesFromSpecies() == null) {

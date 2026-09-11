@@ -36,7 +36,11 @@ public class PokemonService {
     }
 
     public PageResponseDTO<PokemonResponseDTO> search(
-            String name, PokemonType type, int page, int size, String sortBy) {
+            String name, PokemonType type, Integer generation, int page, int size, String sortBy) {
+
+        if (generation != null && (generation < 1 || generation > 9)) {
+            throw new IllegalArgumentException("Geração inválida: " + generation);
+        }
 
         int safeSize = Math.min(Math.max(size, 1), 100);
         int safePage = Math.max(page, 0);
@@ -46,7 +50,7 @@ public class PokemonService {
                 : Sort.by("pokeapiId").ascending();
 
         Pageable pageable = PageRequest.of(safePage, safeSize, sort);
-        Page<Pokemon> result = pokemonRepository.search(name, type, pageable);
+        Page<Pokemon> result = pokemonRepository.search(name, type, generation, pageable);
 
         List<PokemonResponseDTO> content = result.getContent().stream()
                 .map(this::toDTO)
@@ -133,7 +137,8 @@ public class PokemonService {
                 pokemon.getSpecialDefense(),
                 pokemon.getSpeed(),
                 pokemon.getImageUrl(),
-                abilities
+                abilities,
+                pokemon.getGeneration()
         );
     }
 

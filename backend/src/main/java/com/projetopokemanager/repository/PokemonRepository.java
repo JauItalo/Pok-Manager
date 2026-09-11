@@ -21,9 +21,15 @@ public interface PokemonRepository extends JpaRepository<Pokemon, Long> {
     List<Pokemon> findByEvolvesFrom_Id(Long id);
 
     @Query("""
-            SELECT p FROM Pokemon p
-            WHERE (:name IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', CAST(:name AS string), '%')))
-            AND (:type IS NULL OR p.primaryType = :type OR p.secondaryType = :type)
-            """)
-    Page<Pokemon> search(@Param("name") String name, @Param("type") PokemonType type, Pageable pageable);
+        SELECT p FROM Pokemon p
+        WHERE (:name IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', CAST(:name AS string), '%')))
+        AND (:type IS NULL OR p.primaryType = :type OR p.secondaryType = :type)
+        AND (:generation IS NULL OR p.generation = :generation)
+        """)
+    Page<Pokemon> search(
+            @Param("name") String name,
+            @Param("type") PokemonType type,
+            @Param("generation") Integer generation,
+            Pageable pageable
+    );
 }

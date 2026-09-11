@@ -30,11 +30,12 @@ public class PokemonController {
     public PageResponseDTO<PokemonResponseDTO> search(
             @RequestParam(required = false) String name,
             @RequestParam(required = false) PokemonType type,
+            @RequestParam(required = false) Integer generation,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "24") int size,
             @RequestParam(defaultValue = "number") String sortBy
     ) {
-        return pokemonService.search(name, type, page, size, sortBy);
+        return pokemonService.search(name, type, generation, page, size, sortBy);
     }
 
     @GetMapping("/pokedex-number/{pokeapiId}")

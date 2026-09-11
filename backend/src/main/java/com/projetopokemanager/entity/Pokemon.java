@@ -93,4 +93,7 @@ public class Pokemon {
     @JoinColumn(name = "evolves_from_pokemon_id")
     private Pokemon evolvesFrom;
 
+    @Column(nullable = false)
+    private Integer generation;
+
 }

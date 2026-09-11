@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public record PokeApiSpeciesDTO(
         Integer id,
         String name,
-        @JsonProperty("evolves_from_species") PokeApiNamedResourceDTO evolvesFromSpecies
+        @JsonProperty("evolves_from_species") PokeApiNamedResourceDTO evolvesFromSpecies,
+        PokeApiNamedResourceDTO generation
 ) {
 }
