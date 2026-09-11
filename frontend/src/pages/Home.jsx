@@ -82,6 +82,16 @@ function Home() {
             </Link>
           </div>
 
+
+          {loading && (
+            <div className="shrink-0 flex flex-col items-center bg-black/20 rounded-2xl px-8 py-5 animate-pulse">
+              <div className="h-6 w-32 bg-white/10 rounded-full" />
+              <div className="w-32 h-32 bg-white/10 rounded-full mt-3" />
+              <div className="h-4 w-20 bg-white/10 rounded mt-3" />
+              <div className="h-6 w-28 bg-white/10 rounded-full mt-1" />
+            </div>
+          )}
+
           {featured && (
             <Link
               to={`/pokemon/${featured.id}`}
@@ -156,4 +166,4 @@ function Home() {
   )
 }
 
-export default Home
+export default Home 

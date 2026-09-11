@@ -3,6 +3,7 @@ import api from '../api/axios'
 import PokemonCard from '../components/PokemonCard'
 import { TYPE_LABELS_PT } from '../utils/typeColors'
 import { GENERATION_LABELS } from '../utils/generations'
+import PokemonCardSkeleton from '../components/PokemonCardSkeleton'
 
 const PAGE_SIZE = 25
 
@@ -146,7 +147,6 @@ function Pokedex() {
         </div>
       </div>
 
-      {loading && <p className="text-slate-400">Carregando...</p>}
       {error && <p className="text-red-400">{error}</p>}
 
       {!loading && !error && pokemons.length === 0 && (
@@ -154,9 +154,13 @@ function Pokedex() {
       )}
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-8">
-        {pokemons.map((pokemon) => (
-          <PokemonCard key={pokemon.id} pokemon={pokemon} />
-        ))}
+        {loading
+          ? Array.from({ length: PAGE_SIZE }).map((_, i) => (
+            <PokemonCardSkeleton key={i} />
+          ))
+          : pokemons.map((pokemon) => (
+            <PokemonCard key={pokemon.id} pokemon={pokemon} />
+          ))}
       </div>
 
       {!loading && totalPages > 1 && (

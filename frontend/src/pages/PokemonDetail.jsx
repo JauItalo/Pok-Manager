@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { useParams, Link } from 'react-router-dom'
 import api from '../api/axios'
 import TypeBadge from '../components/TypeBadge'
 import StatBar from '../components/StatBar'
@@ -7,6 +6,7 @@ import TypeEffectPill from '../components/TypeEffectPill'
 import { TYPE_COLORS, TYPE_COLORS_DARK } from '../utils/typeColors'
 import EvolutionChain from '../components/EvolutionChain'
 import useAuthStore from '../store/authStore'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 
 const STAT_LABELS = [
   ['hp', 'HP'],
@@ -26,6 +26,7 @@ function PokemonDetail() {
   const [error, setError] = useState(null)
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
   const [addStatus, setAddStatus] = useState(null) // null | 'loading' | 'success' | 'error'
+  const navigate = useNavigate()
 
   useEffect(() => {
     fetchData()
@@ -69,9 +70,12 @@ function PokemonDetail() {
     return (
       <div className="text-center mt-10">
         <p className="text-red-400 mb-4">{error}</p>
-        <Link to="/" className="text-blue-400 hover:underline">
-          Voltar pra Pokédex
-        </Link>
+        <button
+          onClick={() => navigate(-1)}
+          className="inline-flex items-center gap-1 text-sm text-white/70 hover:text-white transition-colors"
+        >
+          ← Voltar
+        </button>
       </div>
     )
   }
@@ -91,12 +95,12 @@ function PokemonDetail() {
           background: `linear-gradient(160deg, ${accentDark} 0%, ${secondaryAccent} 100%)`,
         }}
       >
-        <Link
-          to="/"
+        <button
+          onClick={() => navigate(-1)}
           className="inline-flex items-center gap-1 text-sm text-white/70 hover:text-white transition-colors"
         >
           ← Voltar
-        </Link>
+        </button>
 
         <div className="flex flex-col items-center mt-2">
           <span className="font-display text-white/50 text-lg font-semibold">
