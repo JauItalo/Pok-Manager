@@ -2,14 +2,16 @@ import { useEffect, useState } from 'react'
 import api from '../api/axios'
 import PokemonCard from '../components/PokemonCard'
 import { TYPE_LABELS_PT } from '../utils/typeColors'
+import { GENERATION_LABELS } from '../utils/generations'
 
-const PAGE_SIZE = 24
+const PAGE_SIZE = 25
 
 function Pokedex() {
   const [pokemons, setPokemons] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
+  const [generationFilter, setGenerationFilter] = useState('')
   const [sortBy, setSortBy] = useState('number')
   const [nameInput, setNameInput] = useState('')
   const [typeFilter, setTypeFilter] = useState('')
@@ -20,14 +22,14 @@ function Pokedex() {
   // sempre que o filtro mudar, volta pra primeira página
   useEffect(() => {
     setPage(0)
-  }, [nameInput, typeFilter, sortBy])
+  }, [nameInput, typeFilter, generationFilter, sortBy])
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       fetchPokemons()
     }, 300)
     return () => clearTimeout(timeoutId)
-  }, [nameInput, typeFilter, page, sortBy])
+  }, [nameInput, typeFilter, generationFilter, page, sortBy])
 
   async function fetchPokemons() {
     setLoading(true)
@@ -37,6 +39,7 @@ function Pokedex() {
       const params = { page, size: PAGE_SIZE, sortBy }
       if (nameInput.trim()) params.name = nameInput.trim()
       if (typeFilter) params.type = typeFilter
+      if (generationFilter) params.generation = generationFilter
 
       const response = await api.get('/pokemon', { params })
       setPokemons(response.data.content)
@@ -83,7 +86,7 @@ function Pokedex() {
           />
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-5">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-5">
           <div>
             <span className="text-xs font-bold text-slate-400 tracking-wider uppercase block mb-1.5">
               Elemento
@@ -95,6 +98,24 @@ function Pokedex() {
             >
               <option value="">Todos</option>
               {Object.entries(TYPE_LABELS_PT).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <span className="text-xs font-bold text-slate-400 tracking-wider uppercase block mb-1.5">
+              Geração
+            </span>
+            <select
+              value={generationFilter}
+              onChange={(e) => setGenerationFilter(e.target.value)}
+              className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 outline-none focus:border-slate-500 transition-colors"
+            >
+              <option value="">Todas</option>
+              {Object.entries(GENERATION_LABELS).map(([value, label]) => (
                 <option key={value} value={value}>
                   {label}
                 </option>
