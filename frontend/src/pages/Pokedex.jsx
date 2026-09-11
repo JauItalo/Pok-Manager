@@ -10,6 +10,7 @@ function Pokedex() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
+  const [sortBy, setSortBy] = useState('number')
   const [nameInput, setNameInput] = useState('')
   const [typeFilter, setTypeFilter] = useState('')
   const [page, setPage] = useState(0)
@@ -19,21 +20,21 @@ function Pokedex() {
   // sempre que o filtro mudar, volta pra primeira página
   useEffect(() => {
     setPage(0)
-  }, [nameInput, typeFilter])
+  }, [nameInput, typeFilter, sortBy])
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       fetchPokemons()
     }, 300)
     return () => clearTimeout(timeoutId)
-  }, [nameInput, typeFilter, page])
+  }, [nameInput, typeFilter, page, sortBy])
 
   async function fetchPokemons() {
     setLoading(true)
     setError(null)
 
     try {
-      const params = { page, size: PAGE_SIZE }
+      const params = { page, size: PAGE_SIZE, sortBy }
       if (nameInput.trim()) params.name = nameInput.trim()
       if (typeFilter) params.type = typeFilter
 
@@ -98,6 +99,20 @@ function Pokedex() {
                   {label}
                 </option>
               ))}
+            </select>
+          </div>
+
+          <div>
+            <span className="text-xs font-bold text-slate-400 tracking-wider uppercase block mb-1.5">
+              Ordenar por
+            </span>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 outline-none focus:border-slate-500 transition-colors"
+            >
+              <option value="number">Número da Pokédex</option>
+              <option value="name">Nome A-Z</option>
             </select>
           </div>
         </div>
