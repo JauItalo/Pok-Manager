@@ -31,9 +31,10 @@ public class PokemonController {
             @RequestParam(required = false) String name,
             @RequestParam(required = false) PokemonType type,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "24") int size
+            @RequestParam(defaultValue = "24") int size,
+            @RequestParam(defaultValue = "number") String sortBy
     ) {
-        return pokemonService.search(name, type, page, size);
+        return pokemonService.search(name, type, page, size, sortBy);
     }
 
     @GetMapping("/pokedex-number/{pokeapiId}")

@@ -35,11 +35,17 @@ public class PokemonService {
                 .toList();
     }
 
-    public PageResponseDTO<PokemonResponseDTO> search(String name, PokemonType type, int page, int size) {
+    public PageResponseDTO<PokemonResponseDTO> search(
+            String name, PokemonType type, int page, int size, String sortBy) {
+
         int safeSize = Math.min(Math.max(size, 1), 100);
         int safePage = Math.max(page, 0);
 
-        Pageable pageable = PageRequest.of(safePage, safeSize, Sort.by("pokeapiId").ascending());
+        Sort sort = "name".equalsIgnoreCase(sortBy)
+                ? Sort.by("name").ascending()
+                : Sort.by("pokeapiId").ascending();
+
+        Pageable pageable = PageRequest.of(safePage, safeSize, sort);
         Page<Pokemon> result = pokemonRepository.search(name, type, pageable);
 
         List<PokemonResponseDTO> content = result.getContent().stream()
@@ -66,7 +72,7 @@ public class PokemonService {
     public PokemonResponseDTO getByPokeapiId(Integer pokeapiId) {
         Pokemon pokemon = pokemonRepository.findByPokeapiId(pokeapiId)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Pokémon não encontrado com pokeapiId: " + pokeapiId));
+                "Pokémon não encontrado com pokeapiId: " + pokeapiId));
 
         return toDTO(pokemon);
     }
