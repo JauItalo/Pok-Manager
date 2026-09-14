@@ -1,12 +1,20 @@
 import { Link } from 'react-router-dom'
 
-function TeamCard({ team }) {
-  return (
-    <Link
-      to={`/times/${team.id}`}
-      className="bg-slate-800 rounded-2xl p-5 hover:bg-slate-700 transition-colors"
-    >
-      <h2 className="font-display font-bold text-lg mb-3">{team.name}</h2>
+function TeamCard({ team, selectionMode, selected, onToggleSelect }) {
+  const content = (
+    <>
+      <div className="flex items-start justify-between mb-3">
+        <h2 className="font-display font-bold text-lg">{team.name}</h2>
+        {selectionMode && (
+          <div
+            className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
+              selected ? 'bg-red-500 border-red-500' : 'border-slate-600'
+            }`}
+          >
+            {selected && <span className="text-white text-xs">✓</span>}
+          </div>
+        )}
+      </div>
 
       <div className="flex items-center gap-1 mb-3">
         {Array.from({ length: 6 }).map((_, i) => {
@@ -33,6 +41,26 @@ function TeamCard({ team }) {
       <span className="text-sm text-slate-400">
         {team.pokemons.length}/6 Pokémon
       </span>
+    </>
+  )
+
+  const className = `bg-slate-800 rounded-2xl p-5 transition-colors text-left w-full ${
+    selectionMode && selected
+      ? 'ring-2 ring-red-500'
+      : 'hover:bg-slate-700'
+  }`
+
+  if (selectionMode) {
+    return (
+      <button onClick={onToggleSelect} className={className}>
+        {content}
+      </button>
+    )
+  }
+
+  return (
+    <Link to={`/times/${team.id}`} className={className}>
+      {content}
     </Link>
   )
 }

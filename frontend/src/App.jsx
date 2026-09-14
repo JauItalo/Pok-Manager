@@ -13,6 +13,7 @@ import Collection from './pages/Collection'
 import Teams from './pages/Teams'
 import TeamDetail from './pages/TeamDetail'
 import Profile from './pages/Profile'
+import TeamCompare from './pages/TeamCompare'
 
 function App() {
   return (
@@ -56,6 +57,14 @@ function App() {
           element={
             <ProtectedRoute>
               <Profile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/times/comparar"
+          element={
+            <ProtectedRoute>
+              <TeamCompare />
             </ProtectedRoute>
           }
         />
