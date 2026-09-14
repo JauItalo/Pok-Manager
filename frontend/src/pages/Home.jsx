@@ -2,8 +2,12 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import api from '../api/axios'
 import TypeBadge from '../components/TypeBadge'
+import ProfileSummaryStrip from '../components/ProfileSummaryStrip'
+import FavoritesCarousel from '../components/FavoritesCarousel'
+import LatestTeamCard from '../components/LatestTeamCard'
 import { TYPE_COLORS, TYPE_COLORS_DARK } from '../utils/typeColors'
 import { getDayOfYear } from '../utils/dayOfYear'
+import useAuthStore from '../store/authStore'
 
 const QUICK_LINKS = [
   {
@@ -27,16 +31,32 @@ const QUICK_LINKS = [
 ]
 
 function Home() {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
+
   const [featured, setFeatured] = useState(null)
   const [loading, setLoading] = useState(true)
+
+  const [profile, setProfile] = useState(null)
+  const [favorites, setFavorites] = useState([])
+  const [latestTeam, setLatestTeam] = useState(null)
+  const [latestTeamAnalysis, setLatestTeamAnalysis] = useState(null)
+  const [dashboardLoading, setDashboardLoading] = useState(true)
 
   useEffect(() => {
     fetchFeatured()
   }, [])
 
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchDashboard()
+    } else {
+      setDashboardLoading(false)
+    }
+  }, [isAuthenticated])
+
   async function fetchFeatured() {
     try {
-      const totalCount = 1025 // total de Pokémon sincronizados
+      const totalCount = 1025
       const pokeapiId = (getDayOfYear() % totalCount) + 1
 
       const response = await api.get(`/pokemon/pokedex-number/${pokeapiId}`)
@@ -45,6 +65,35 @@ function Home() {
       // silencioso: a home degrada bem sem o destaque
     } finally {
       setLoading(false)
+    }
+  }
+
+  async function fetchDashboard() {
+    setDashboardLoading(true)
+    try {
+      const [profileRes, collectionRes, teamsRes] = await Promise.all([
+        api.get('/users/me'),
+        api.get('/collection'),
+        api.get('/teams'),
+      ])
+
+      setProfile(profileRes.data)
+      setFavorites(collectionRes.data.filter((entry) => entry.favorite))
+
+      const teams = teamsRes.data
+      if (teams.length > 0) {
+        const mostRecent = [...teams].sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        )[0]
+        setLatestTeam(mostRecent)
+
+        const analysisRes = await api.get(`/teams/${mostRecent.id}/analysis`)
+        setLatestTeamAnalysis(analysisRes.data)
+      }
+    } catch (err) {
+      // painel pessoal é opcional: se falhar, a home segue normal
+    } finally {
+      setDashboardLoading(false)
     }
   }
 
@@ -82,16 +131,6 @@ function Home() {
             </Link>
           </div>
 
-
-          {loading && (
-            <div className="shrink-0 flex flex-col items-center bg-black/20 rounded-2xl px-8 py-5 animate-pulse">
-              <div className="h-6 w-32 bg-white/10 rounded-full" />
-              <div className="w-32 h-32 bg-white/10 rounded-full mt-3" />
-              <div className="h-4 w-20 bg-white/10 rounded mt-3" />
-              <div className="h-6 w-28 bg-white/10 rounded-full mt-1" />
-            </div>
-          )}
-
           {featured && (
             <Link
               to={`/pokemon/${featured.id}`}
@@ -125,6 +164,26 @@ function Home() {
         </div>
       </div>
 
+      {/* PAINEL PESSOAL (só logado) */}
+      {isAuthenticated && !dashboardLoading && profile && (
+        <div className="flex flex-col gap-6 mb-10">
+          <ProfileSummaryStrip
+            collectionCount={profile.collectionCount}
+            favoriteCount={profile.favoriteCount}
+            teamCount={profile.teamCount}
+          />
+
+          <div>
+            <h2 className="font-display font-bold text-lg mb-3">Seus favoritos</h2>
+            <FavoritesCarousel favorites={favorites} />
+          </div>
+
+          {latestTeam && (
+            <LatestTeamCard team={latestTeam} analysis={latestTeamAnalysis} />
+          )}
+        </div>
+      )}
+
       {/* ATALHOS */}
       <div className="grid sm:grid-cols-3 gap-4">
         {QUICK_LINKS.map((link) => {
@@ -132,30 +191,14 @@ function Home() {
             <>
               <h2 className="font-display font-bold text-lg">{link.label}</h2>
               <p className="text-sm text-slate-400 mt-1">{link.description}</p>
-              {!link.enabled && (
-                <span className="inline-block mt-3 text-xs font-semibold text-slate-500 bg-slate-800 px-2 py-1 rounded-full">
-                  Em breve
-                </span>
-              )}
             </>
           )
-
-          if (!link.enabled) {
-            return (
-              <div
-                key={link.label}
-                className="min-h-[132px] rounded-2xl bg-slate-800/50 p-5 opacity-60 cursor-not-allowed"
-              >
-                {content}
-              </div>
-            )
-          }
 
           return (
             <Link
               key={link.label}
               to={link.path}
-              className="min-h-[132px] rounded-2xl bg-slate-800 p-5 hover:bg-slate-700 transition-colors"
+              className="min-h-[100px] rounded-2xl bg-slate-800 p-5 hover:bg-slate-700 transition-colors"
             >
               {content}
             </Link>
@@ -166,4 +209,4 @@ function Home() {
   )
 }
 
-export default Home 
+export default Home
