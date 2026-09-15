@@ -4,6 +4,7 @@ import PokemonCard from '../components/PokemonCard'
 import { TYPE_LABELS_PT } from '../utils/typeColors'
 import { GENERATION_LABELS } from '../utils/generations'
 import PokemonCardSkeleton from '../components/PokemonCardSkeleton'
+import useAuthStore from '../store/authStore'
 
 const PAGE_SIZE = 25
 
@@ -12,6 +13,8 @@ function Pokedex() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
+  const [favoritesMap, setFavoritesMap] = useState({})
   const [generationFilter, setGenerationFilter] = useState('')
   const [sortBy, setSortBy] = useState('number')
   const [nameInput, setNameInput] = useState('')
@@ -32,6 +35,12 @@ function Pokedex() {
     return () => clearTimeout(timeoutId)
   }, [nameInput, typeFilter, generationFilter, page, sortBy])
 
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchFavorites()
+    }
+  }, [isAuthenticated])
+
   async function fetchPokemons() {
     setLoading(true)
     setError(null)
@@ -50,6 +59,51 @@ function Pokedex() {
       setError('Não foi possível carregar os Pokémon. Verifique se o backend está rodando.')
     } finally {
       setLoading(false)
+    }
+  }
+
+  async function fetchFavorites() {
+    try {
+      const response = await api.get('/collection')
+      const map = {}
+
+      response.data.forEach((entry) => {
+        const pokemonId = entry.pokemon.id
+        if (!map[pokemonId] || (entry.favorite && !map[pokemonId].favorite)) {
+          map[pokemonId] = { entryId: entry.id, favorite: entry.favorite }
+        }
+      })
+
+      setFavoritesMap(map)
+    } catch (err) {
+      // painel de favoritos é opcional; falha aqui não deve travar a pokédex
+    }
+  }
+
+  async function handleToggleFavorite(pokemon) {
+    const existing = favoritesMap[pokemon.id]
+
+    try {
+      if (existing) {
+        const response = await api.patch(`/collection/${existing.entryId}`, {
+          favorite: !existing.favorite,
+        })
+        setFavoritesMap({
+          ...favoritesMap,
+          [pokemon.id]: { entryId: response.data.id, favorite: response.data.favorite },
+        })
+      } else {
+        const createResponse = await api.post('/collection', { pokemonId: pokemon.id })
+        const patchResponse = await api.patch(`/collection/${createResponse.data.id}`, {
+          favorite: true,
+        })
+        setFavoritesMap({
+          ...favoritesMap,
+          [pokemon.id]: { entryId: patchResponse.data.id, favorite: true },
+        })
+      }
+    } catch (err) {
+      // silencioso: se falhar, o estado local simplesmente não muda
     }
   }
 
@@ -156,11 +210,17 @@ function Pokedex() {
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-8">
         {loading
           ? Array.from({ length: PAGE_SIZE }).map((_, i) => (
-            <PokemonCardSkeleton key={i} />
-          ))
+              <PokemonCardSkeleton key={i} />
+            ))
           : pokemons.map((pokemon) => (
-            <PokemonCard key={pokemon.id} pokemon={pokemon} />
-          ))}
+              <PokemonCard
+                key={pokemon.id}
+                pokemon={pokemon}
+                showFavorite={isAuthenticated}
+                isFavorite={favoritesMap[pokemon.id]?.favorite ?? false}
+                onToggleFavorite={handleToggleFavorite}
+              />
+            ))}
       </div>
 
       {!loading && totalPages > 1 && (

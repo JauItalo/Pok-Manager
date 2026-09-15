@@ -16,7 +16,13 @@ function TypePill({ type }) {
   )
 }
 
-function PokemonCard({ pokemon }) {
+function PokemonCard({ pokemon, isFavorite, showFavorite, onToggleFavorite }) {
+  function handleFavoriteClick(e) {
+    e.preventDefault()
+    e.stopPropagation()
+    onToggleFavorite(pokemon)
+  }
+
   return (
     <Link
       to={`/pokemon/${pokemon.id}`}
@@ -25,6 +31,16 @@ function PokemonCard({ pokemon }) {
       <span className="absolute top-3 left-3 font-display text-xs font-bold text-slate-500 group-hover:text-slate-400 transition-colors">
         #{String(pokemon.pokeapiId).padStart(3, '0')}
       </span>
+
+      {showFavorite && (
+        <button
+          onClick={handleFavoriteClick}
+          className="absolute top-2 right-2 text-lg leading-none z-10"
+          title={isFavorite ? 'Remover dos favoritos' : 'Marcar como favorito'}
+        >
+          {isFavorite ? '⭐' : '☆'}
+        </button>
+      )}
 
       <img
         src={pokemon.imageUrl}

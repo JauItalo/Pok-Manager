@@ -8,8 +8,8 @@ function FavoritesCarousel({ favorites }) {
         <p className="text-slate-400 text-sm">
           Você ainda não marcou nenhum Pokémon como favorito.
         </p>
-        <Link to="/colecao" className="text-sm text-white underline mt-1 inline-block">
-          Ir para a coleção
+        <Link to="/pokedex" className="text-sm text-white underline mt-1 inline-block">
+          Ir para a podekex
         </Link>
       </div>
     )

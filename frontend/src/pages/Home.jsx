@@ -4,7 +4,7 @@ import api from '../api/axios'
 import TypeBadge from '../components/TypeBadge'
 import ProfileSummaryStrip from '../components/ProfileSummaryStrip'
 import FavoritesCarousel from '../components/FavoritesCarousel'
-import LatestTeamCard from '../components/LatestTeamCard'
+import TeamsCarousel from '../components/TeamsCarousel'
 import { TYPE_COLORS, TYPE_COLORS_DARK } from '../utils/typeColors'
 import { getDayOfYear } from '../utils/dayOfYear'
 import useAuthStore from '../store/authStore'
@@ -38,8 +38,7 @@ function Home() {
 
   const [profile, setProfile] = useState(null)
   const [favorites, setFavorites] = useState([])
-  const [latestTeam, setLatestTeam] = useState(null)
-  const [latestTeamAnalysis, setLatestTeamAnalysis] = useState(null)
+  const [teamsWithAnalysis, setTeamsWithAnalysis] = useState([])
   const [dashboardLoading, setDashboardLoading] = useState(true)
 
   useEffect(() => {
@@ -80,16 +79,17 @@ function Home() {
       setProfile(profileRes.data)
       setFavorites(collectionRes.data.filter((entry) => entry.favorite))
 
-      const teams = teamsRes.data
-      if (teams.length > 0) {
-        const mostRecent = [...teams].sort(
-          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-        )[0]
-        setLatestTeam(mostRecent)
+      const teams = [...teamsRes.data].sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      )
 
-        const analysisRes = await api.get(`/teams/${mostRecent.id}/analysis`)
-        setLatestTeamAnalysis(analysisRes.data)
-      }
+      const analyses = await Promise.all(
+        teams.map((team) => api.get(`/teams/${team.id}/analysis`))
+      )
+
+      setTeamsWithAnalysis(
+        teams.map((team, i) => ({ team, analysis: analyses[i].data }))
+      )
     } catch (err) {
       // painel pessoal é opcional: se falhar, a home segue normal
     } finally {
@@ -178,9 +178,7 @@ function Home() {
             <FavoritesCarousel favorites={favorites} />
           </div>
 
-          {latestTeam && (
-            <LatestTeamCard team={latestTeam} analysis={latestTeamAnalysis} />
-          )}
+          <TeamsCarousel teamsWithAnalysis={teamsWithAnalysis} />
         </div>
       )}
 

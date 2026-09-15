@@ -20,7 +20,7 @@ function Navbar() {
   }
 
   return (
-    <nav className="sticky top-0 z-10 backdrop-blur bg-slate-900/80 border-b border-slate-800">
+    <nav className="sticky top-0 z-50 bg-slate-900 border-b border-slate-800">
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
         <Link to="/" className="font-display text-xl font-bold tracking-tight">
           Poké<span className="text-red-400">Manager</span>
