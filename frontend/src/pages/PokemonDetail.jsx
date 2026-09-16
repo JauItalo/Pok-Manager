@@ -18,6 +18,7 @@ const STAT_LABELS = [
 ]
 
 function PokemonDetail() {
+  const [showShiny, setShowShiny] = useState(false)
   const { id } = useParams()
   const [evolution, setEvolution] = useState(null)
   const [pokemon, setPokemon] = useState(null)
@@ -113,11 +114,10 @@ function PokemonDetail() {
           />
 
           <img
-            src={pokemon.imageUrl}
+            src={showShiny && pokemon.shinyImageUrl ? pokemon.shinyImageUrl : pokemon.imageUrl}
             alt={pokemon.name}
             className="relative w-52 h-52 object-contain drop-shadow-2xl"
           />
-
           <h1 className="font-display text-4xl font-bold capitalize text-white mt-1">
             {pokemon.name}
           </h1>
@@ -126,6 +126,15 @@ function PokemonDetail() {
             <TypeBadge type={pokemon.primaryType} />
             {pokemon.secondaryType && <TypeBadge type={pokemon.secondaryType} />}
           </div>
+
+          {pokemon.shinyImageUrl && (
+            <button
+              onClick={() => setShowShiny(!showShiny)}
+              className="mt-3 text-xs font-semibold bg-white/15 hover:bg-white/25 text-white px-3 py-1.5 rounded-full transition-colors"
+            >
+              {showShiny ? '← Ver normal' : 'Ver Shiny ✨'}
+            </button>
+          )}
         </div>
       </div>
 

@@ -13,6 +13,7 @@ function EditEntryModal({ entry, onClose, onSaved }) {
     abilityName: entry.ability ?? '',
     nickname: entry.nickname ?? '',
     obtainedMethod: entry.obtainedMethod ?? '',
+    shiny: entry.shiny ?? false,
   })
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(null)
@@ -49,6 +50,7 @@ function EditEntryModal({ entry, onClose, onSaved }) {
       abilityId: selectedAbility ? selectedAbility.id : null,
       nickname: form.nickname === '' ? null : form.nickname,
       obtainedMethod: form.obtainedMethod === '' ? null : form.obtainedMethod,
+      shiny: form.shiny,
     }
 
     try {
@@ -92,6 +94,16 @@ function EditEntryModal({ entry, onClose, onSaved }) {
               className="w-4 h-4"
             />
             Capturado
+          </label>
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              name="shiny"
+              checked={form.shiny}
+              onChange={handleChange}
+              className="w-4 h-4"
+            />
+            ✨ Shiny
           </label>
 
           <div>

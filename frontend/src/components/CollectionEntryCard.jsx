@@ -29,9 +29,14 @@ function CollectionEntryCard({ entry, onEdit, onToggleFavorite, onDelete }) {
       </div>
 
       <div className="flex flex-col items-center px-4 -mt-6">
+        {entry.shiny && (
+          <span className="absolute top-14 left-2 text-lg" title="Shiny">
+            ✨
+          </span>
+        )}
         <Link to={`/pokemon/${pokemon.id}`}>
           <img
-            src={pokemon.imageUrl}
+            src={entry.shiny && pokemon.shinyImageUrl ? pokemon.shinyImageUrl : pokemon.imageUrl}
             alt={pokemon.name}
             className="w-20 h-20 object-contain drop-shadow-lg"
           />
