@@ -96,4 +96,7 @@ public class Pokemon {
     @Column(nullable = false)
     private Integer generation;
 
+    @Column(name = "shiny_image_url", length = 500)
+    private String shinyImageUrl;
+
 }

@@ -14,6 +14,7 @@ public record CollectionEntryResponseDTO(
         String nickname,
         boolean favorite,
         String obtainedMethod,
+        boolean shiny,
         LocalDateTime createdAt
 ) {
 }

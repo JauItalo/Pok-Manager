@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record PokeApiArtworkDTO(
-        @JsonProperty("front_default") String frontDefault
+        @JsonProperty("front_default") String frontDefault,
+        @JsonProperty("front_shiny") String frontShiny
 ) {
 }

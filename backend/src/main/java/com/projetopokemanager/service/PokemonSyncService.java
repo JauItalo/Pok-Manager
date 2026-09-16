@@ -88,7 +88,7 @@ public class PokemonSyncService {
     private Ability findOrCreateAbility(String name) {
         return abilityRepository.findByName(name)
                 .orElseGet(() -> abilityRepository.save(
-                        Ability.builder().name(name).build()));
+                Ability.builder().name(name).build()));
     }
 
     private void attachSpeciesData(Pokemon pokemon, int pokeapiId) {
@@ -123,10 +123,16 @@ public class PokemonSyncService {
                 .map(t -> parseType(t.type().name()))
                 .toList();
 
-        String imageUrl = dto.sprites() != null
+        boolean hasArtwork = dto.sprites() != null
                 && dto.sprites().other() != null
-                && dto.sprites().other().officialArtwork() != null
+                && dto.sprites().other().officialArtwork() != null;
+
+        String imageUrl = hasArtwork
                 ? dto.sprites().other().officialArtwork().frontDefault()
+                : null;
+
+        String shinyImageUrl = hasArtwork
+                ? dto.sprites().other().officialArtwork().frontShiny()
                 : null;
 
         return Pokemon.builder()
@@ -143,6 +149,7 @@ public class PokemonSyncService {
                 .specialDefense(statsByName.get("special-defense"))
                 .speed(statsByName.get("speed"))
                 .imageUrl(imageUrl)
+                .shinyImageUrl(shinyImageUrl)
                 .build();
     }
 

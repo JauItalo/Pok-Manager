@@ -137,8 +137,9 @@ public class PokemonService {
                 pokemon.getSpecialDefense(),
                 pokemon.getSpeed(),
                 pokemon.getImageUrl(),
+                pokemon.getShinyImageUrl(),
                 abilities,
-                pokemon.getGeneration()
+                pokemon.getGeneration()    
         );
     }
 

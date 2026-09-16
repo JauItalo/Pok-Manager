@@ -17,6 +17,7 @@ public record PokemonResponseDTO(
         Integer specialDefense,
         Integer speed,
         String imageUrl,
+        String shinyImageUrl,
         List<AbilityDTO> abilities,
         Integer generation
 ) {

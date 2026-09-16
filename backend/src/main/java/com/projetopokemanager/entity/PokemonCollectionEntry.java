@@ -74,4 +74,8 @@ public class PokemonCollectionEntry {
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
     }
+
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean shiny = false;
 }

@@ -31,7 +31,7 @@ public class CollectionService {
     public CollectionEntryResponseDTO addToCollection(User user, AddToCollectionRequestDTO request) {
         Pokemon pokemon = pokemonRepository.findById(request.pokemonId())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Pokémon não encontrado com id: " + request.pokemonId()));
+                "Pokémon não encontrado com id: " + request.pokemonId()));
 
         PokemonCollectionEntry entry = PokemonCollectionEntry.builder()
                 .user(user)
@@ -81,6 +81,9 @@ public class CollectionService {
         if (request.abilityId() != null) {
             entry.setAbility(resolveAbility(entry.getPokemon(), request.abilityId()));
         }
+        if (request.shiny() != null) {
+            entry.setShiny(request.shiny());
+        }
 
         PokemonCollectionEntry saved = collectionRepository.save(entry);
 
@@ -95,13 +98,13 @@ public class CollectionService {
     private PokemonCollectionEntry findOwnedEntry(User user, Long entryId) {
         return collectionRepository.findByIdAndUser_Id(entryId, user.getId())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Entrada de coleção não encontrada: " + entryId));
+                "Entrada de coleção não encontrada: " + entryId));
     }
 
     private Ability resolveAbility(Pokemon pokemon, Long abilityId) {
         Ability ability = abilityRepository.findById(abilityId)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Habilidade não encontrada com id: " + abilityId));
+                "Habilidade não encontrada com id: " + abilityId));
 
         boolean belongsToPokemon = pokemon.getAbilities().stream()
                 .anyMatch(pa -> pa.getAbility().getId().equals(abilityId));
@@ -136,6 +139,7 @@ public class CollectionService {
                 entry.getNickname(),
                 entry.isFavorite(),
                 entry.getObtainedMethod(),
+                entry.isShiny(),
                 entry.getCreatedAt()
         );
     }
